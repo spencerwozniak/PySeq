@@ -1,15 +1,25 @@
 #!/usr/bin/env python3
 
-# USAGE:
-# ./sequence.py {OPTIONS} SEQUENCE
+#####################################
+# USAGE:                            #
+# ./sequence.py {OPTIONS} SEQUENCE  #
+#####################################
+
+############################################################
+#                                                          #
+#        Made by Spencer Wozniak (woznia79@msu.edu)        #
+#                                                          #
+############################################################
 
 import sys
 
 def display_help():
+    # Displays help menu
     print()
-    print('Convert DNA/RNA sequences with polarity')
-    print('By default, detects DNA or RNA; displays replication, transcription, & translation')
-    print('(Made by Spencer Wozniak)')
+    print('Convert DNA/RNA sequences with polarity.')  
+    print()
+    print('DEFAULT:')
+    print('Detects DNA/RNA, polarity; displays replication, transcription, & translation.')
     print()
     print('USAGE:')
     print('./sequence.py {OPTIONS} SEQUENCE')
@@ -32,12 +42,14 @@ def display_help():
     exit()
 
 def seq_type(sequence: str):
+    # Determines whether input sequence is DNA or RNA
     for char in sequence:
-        if char == 'T':
+        if char == 'T': # Thymine -> DNA
             return 'DNA'
-        elif char == 'U':
+        elif char == 'U': # Uracil -> RNA
             return 'RNA'
 
+# Default settings
 selection = False
 replication = False
 transcription = False
@@ -48,41 +60,47 @@ stop_codon = False
 translation_output = '1'
 strand = 'coding'
 
+# Parse arguments
 for arg in sys.argv[1:]:
     if arg in ('-h','-help','--help'):
-        display_help()
+        display_help() # Displays help menu if '-h' selected
     elif arg == '--replication':
-        replication = True
-        selection = True
+        replication = True # Indicates replication
+        selection = True # Indicates selection
         sys.argv.remove(arg)
     elif arg == '--transcription':
-        transcription = True
-        selection = True
+        transcription = True # Indicates transcription
+        selection = True # Indicates selection
         sys.argv.remove(arg)
     elif arg == '--reverse-transcription':
-        reverse_transcription = True
-        selection = True
+        reverse_transcription = True # Indicates reverse transcription
+        selection = True # Indicates selection
         sys.argv.remove(arg)
     elif arg == '--three':
-        translation_output = '3'
+        translation_output = '3' # Indicates three letter AA code
         sys.argv.remove(arg)
     elif arg == '--template':
-        strand = 'template'
+        strand = 'template' # Indicates template strand input
         sys.argv.remove(arg)
     elif arg == '--coding':
-        strand = 'coding'
+        strand = 'coding' # Indicates coding strand input
         sys.argv.remove(arg)
     elif arg == '--start':
-        start_codon = True
+        start_codon = True # Detect start codon in mRNA
         sys.argv.remove(arg)
     elif arg == '--stop':
-        stop_codon = True
+        stop_codon = True # Detect stop codon in mRNA
         sys.argv.remove(arg)
-    elif arg[0:2] == '--':
-        raise ValueError(f'"{arg}" is not a valid argument. Use "-h" to see arguments.')
+    elif arg[0] == '-':
+        raise ValueError(
+            f'"{arg}" is not a valid argument. Use "-h" to see arguments.'
+                        )
 
+# Get sequence from arguments 
+# ? need here to prevent Exception ?
 sequence = ''.join(sys.argv[1:])
 
+# If selection not indicated, display all outputs.
 if not selection:
     if seq_type(sequence) == 'DNA':
         replication = True
@@ -92,21 +110,23 @@ if not selection:
         reverse_transcription = True
         translation = True
 
-
 def check_polarity(char: str):
+    # Checks polarity of input sequence.
     if char == '5':
-        return ('3','5')
+        return ('3','5') # Output should be opposite the input
     elif char == '3':
-        return ('5','3')
+        return ('5','3') # Output should be opposite the input
     elif char in ('G','C','U','T','A'):
+        # If no polarity given, assume 5' first
         sys.stderr.write('(No polarity given)\n')
-        return ('3','5')
+        return ('3','5') # Output will be 3'->5'
     else:
-        raise ValueError('Invalid polarity')
+        raise ValueError('Invalid polarity') # Polarity should indicate 5' or 3'
 
 def DNA_DNA(sequence: str):
-    p = check_polarity(sequence[0])
-    new = []
+    # Replication function
+    p = check_polarity(sequence[0]) # Check polarity
+    new = [] # Output sequence
     new.append(f"{p[0]}’-")
     for char in sequence:
         if char not in ('5',"'",'`','3','-',' ','’'):
@@ -124,8 +144,9 @@ def DNA_DNA(sequence: str):
     return ''.join(new)
 
 def DNA_RNA(sequence: str):
-    p = check_polarity(sequence[0])
-    new = f"{p[0]}’-"
+    # Transcription function
+    p = check_polarity(sequence[0]) # Check polarity
+    new = f"{p[0]}’-" # Output sequence
     for char in sequence:
         if char not in ('5',"'",'`','3','-',' ','’'):
             if char.upper() == 'G':
@@ -142,6 +163,7 @@ def DNA_RNA(sequence: str):
     return new
 
 def RNA_DNA(sequence: str):
+    # Reverse transription function
     p = check_polarity(sequence[0])
     new = f"{p[0]}’-"
     for char in sequence:
@@ -160,6 +182,9 @@ def RNA_DNA(sequence: str):
     return new
 
 def RNA_Protein(sequence: str, start=True, stop=True, write='1'):
+    # Translation function
+    
+    # Codon dictionary
     codons = {
         'AUA':'I', 'AUC':'I', 'AUU':'I', 'AUG':'M',
         'ACA':'T', 'ACC':'T', 'ACG':'T', 'ACU':'T',
@@ -178,7 +203,8 @@ def RNA_Protein(sequence: str, start=True, stop=True, write='1'):
         'UAC':'Y', 'UAU':'Y', 'UAA':'_', 'UAG':'_',
         'UGC':'C', 'UGU':'C', 'UGA':'_', 'UGG':'W',
     }
-
+    
+    # AA name dictionary (1->3)
     aas = {
         'I':'Ile', 'M':'Met', 'T':'Thr', 'N':'Asn',
         'K':'Lys', 'S':'Ser', 'R':'Arg', 'L':'Leu',
@@ -192,6 +218,7 @@ def RNA_Protein(sequence: str, start=True, stop=True, write='1'):
 
     protein = 'N-'
     
+    # Detection of start codon in mRNA
     if start_codon:
         starting_index = 0
 
@@ -202,6 +229,7 @@ def RNA_Protein(sequence: str, start=True, stop=True, write='1'):
 
         seq = seq[i:]
 
+    # Detection of stop codon in mRNA
     if stop_codon:
         end_index = len(seq)
 
@@ -212,32 +240,45 @@ def RNA_Protein(sequence: str, start=True, stop=True, write='1'):
 
         seq = seq[:i]
 
-    if len(seq)%3 == 0:
-        for i in range(0, len(seq), 3):
-            codon = seq[i:i + 3]
-            if write == '1':
-                protein += codons[codon]
-            if write == '3':
-                if i != 0:
-                    protein += '-'
-                protein += aas[codons[codon]]
-    else:
-        protein += ' (Not a valid sequence for translation) '
+    # Translation will only occur if there is an integer number of codons.
+    x = 0
+    y = False
+    while x < 3:
+        if len(seq)%3 == 0: # If there is an integer number of codons.
+            for i in range(0, len(seq), 3):
+                codon = seq[i:i + 3]
+                if write == '1': # 1 letter abbreviations
+                    protein += codons[codon]
+                if write == '3': # 3 letter abbreviations
+                    if i != 0:
+                        protein += '-'
+                    protein += aas[codons[codon]]
+            break
+        else:
+            y = True
+            seq = seq[:-1] # Trim last rNTP off sequence
+            x += 1
+    
+    if y:
+        protein += f'[{x}]' # Indicates number of rNTPs not included in translation.
 
     protein += '-C'
     return protein
 
 def main():
-    sequence = ''.join(sys.argv[1:])
-    print(f'\nSequence provided ({seq_type(sequence)})')
-    print(sequence)
+    # Main
+    sequence = ''.join(sys.argv[1:]) # Get sequence from arguments
+    print(f'\nSequence provided ({seq_type(sequence)})') # Print input sequence type
+    print(sequence) # Print input sequence
     print()
     
+    # Handles coding or template strand
     if strand == 'template':
         dna_c = DNA_DNA(sequence)
     else:
         dna_c = False
     
+    # Call replication function
     if replication:
         print('DNA -> DNA')
         if dna_c:
@@ -251,17 +292,22 @@ def main():
         print(dna_t, '(Template strand)')
         print()
     
+    # Call transcription function
     if transcription:
         print('DNA -> mRNA')
         rna = DNA_RNA(dna_t)
         print(rna)
         print()
+
+    # Call reverse transcription function
     if reverse_transcription:
         print('RNA -> DNA')
         rna = sequence
         dna = RNA_DNA(rna)
         print(dna)
         print()
+
+    # Call translation function
     if translation:
         print('mRNA -> Protein')
         print(RNA_Protein(rna, write=translation_output))
@@ -269,3 +315,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+############################################################
