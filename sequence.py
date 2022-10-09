@@ -76,6 +76,10 @@ for arg in sys.argv[1:]:
         reverse_transcription = True # Indicates reverse transcription
         selection = True # Indicates selection
         sys.argv.remove(arg)
+    elif arg == '--translation':
+        translation = True # Indicates translation
+        selection = True # Indicates selection
+        sys.argv.remove(arg)
     elif arg == '--three':
         translation_output = '3' # Indicates three letter AA code
         sys.argv.remove(arg)
@@ -146,21 +150,24 @@ def DNA_DNA(sequence: str):
 def DNA_RNA(sequence: str):
     # Transcription function
     p = check_polarity(sequence[0]) # Check polarity
-    new = f"{p[0]}’-" # Output sequence
+    new = []
     for char in sequence:
         if char not in ('5',"'",'`','3','-',' ','’'):
             if char.upper() == 'G':
-                new += 'C'
+                new.append('C')
             elif char.upper() == 'C':
-                new += 'G'
+                new.append('G')
             elif char.upper() == 'A':
-                new += 'U'
+                new.append('U')
             elif char.upper() == 'T':
-                new += 'A'
+                new.append('A')
             else:
                 raise ValueError(f'{char} is not a valid DNA nucleotide')
-    new += f"-{p[1]}’"
-    return new
+    if p[0] == '3':
+        new.reverse()
+    new_str = f'5’-{"".join(new)}-3’'
+    
+    return new_str
 
 def RNA_DNA(sequence: str):
     # Reverse transription function
@@ -213,8 +220,11 @@ def RNA_Protein(sequence: str, start=True, stop=True, write='1'):
         'F':'Phe', 'Y':'Tyr', 'C':'Cys', 'W':'Trp'
     }
     
-        
-    seq = ''.join([char for char in sequence if char in ['A','U','C','G']])
+    seq_list = [char for char in sequence if char in ['A','U','C','G']]
+    if sequence[0] == '3':
+        seq_list.reverse()
+    seq = ''.join(seq_list)
+
 
     protein = 'N-'
     
@@ -272,30 +282,43 @@ def main():
     print(sequence) # Print input sequence
     print()
     
+    dna_c = None
+    dna_t = None
+
     # Handles coding or template strand
     if strand == 'template':
         dna_c = DNA_DNA(sequence)
+        dna_t = DNA_DNA(dna_c)
     else:
         dna_c = False
-    
+        dna_t = DNA_DNA(sequence)
+   
+    rna = None
+
+    if dna_c:
+        dna_t = DNA_DNA(dna_c)
+        dna_c = DNA_DNA(dna_t)
+    else:
+        dna_t = DNA_DNA(sequence)
+        dna_c = DNA_DNA(dna_t)
+
+
     # Call replication function
     if replication:
         print('DNA -> DNA')
-        if dna_c:
-            dna_t = DNA_DNA(dna_c)
-            dna_c = DNA_DNA(dna_t)
-        else:
-            dna_t = DNA_DNA(sequence)
-            dna_c = DNA_DNA(dna_t)
-
         print(dna_c, '(Coding strand)')
         print(dna_t, '(Template strand)')
         print()
-    
+        
+
     # Call transcription function
     if transcription:
+        if dna_t is None:
+            dna = dna_c
+        else:
+            dna = dna_t
         print('DNA -> mRNA')
-        rna = DNA_RNA(dna_t)
+        rna = DNA_RNA(dna)
         print(rna)
         print()
 
@@ -303,12 +326,16 @@ def main():
     if reverse_transcription:
         print('RNA -> DNA')
         rna = sequence
-        dna = RNA_DNA(rna)
-        print(dna)
+        dna_t = RNA_DNA(rna)
+        dna_c = DNA_DNA(dna_t)
+        print(dna_c, '(Coding strand)')
+        print(dna_t, '(Template strand)')
         print()
 
     # Call translation function
     if translation:
+        if rna is None:
+            rna = sequence
         print('mRNA -> Protein')
         print(RNA_Protein(rna, write=translation_output))
         print()
