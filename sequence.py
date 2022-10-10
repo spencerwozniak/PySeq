@@ -26,6 +26,7 @@ def display_help():
     print()
     print('OPTIONS:')
     print('               -h, --help : Display this menu')
+    print('                    --gui : Use GUI')
     print('            --replication : DNA -> DNA')
     print('          --transcription : DNA -> RNA')
     print('  --reverse-transcription : RNA -> DNA')
@@ -64,6 +65,10 @@ strand = 'coding'
 for arg in sys.argv[1:]:
     if arg in ('-h','-help','--help'):
         display_help() # Displays help menu if '-h' selected
+    elif arg == '--gui':
+        import os
+        os.system('./gui.py')
+        exit()
     elif arg == '--replication':
         replication = True # Indicates replication
         selection = True # Indicates selection
@@ -278,15 +283,20 @@ def RNA_Protein(sequence: str, start=True, stop=True, write='1'):
 def main():
     # Main
     sequence = ''.join(sys.argv[1:]) # Get sequence from arguments
-    print(f'\nSequence provided ({seq_type(sequence)})') # Print input sequence type
+    s_type = seq_type(sequence)
+    
+    if reverse_transcription and (s_type == 'DNA'):
+        print('Cannot reverse transcribe DNA')
+        exit()
+    if replication and (s_type == 'RNA'):
+        print('Cannot replicate RNA')
+        exit()
+
+    print(f'\nSequence provided ({s_type})') # Print input sequence type
     print(sequence) # Print input sequence
     print()
     
     if seq_type(sequence) != 'RNA':
-        # If RNA not given, will get DNA coding/template strand.
-        dna_c = None
-        dna_t = None
-
         # Handles coding or template strand
         if strand == 'template':
             dna_c = DNA_DNA(sequence)
@@ -303,36 +313,38 @@ def main():
         else:
             dna_t = DNA_DNA(sequence)
             dna_c = DNA_DNA(dna_t)
-
+    else:
+        rna = seq
+        dna_t = RNA_DNA(rna)
+        dna_c = DNA_DNA(dna_t)
 
     # Call replication function
     if replication:
-        print('DNA -> DNA')
-        print(dna_c, '(Coding strand)')
-        print(dna_t, '(Template strand)')
+        print('DNA')
+        print(dna_c)
+        print(dna_t)
         print()
         
+    # Call reverse transcription function
+    if reverse_transcription:
+        print('DNA')
+        print(dna_c)
+        print(dna_t)
+        print()
+    
+    if dna_t is None:
+        dna = dna_c
+    else:
+        dna = dna_t
+
+    rna = DNA_RNA(dna)
 
     # Call transcription function
     if transcription:
-        if dna_t is None:
-            dna = dna_c
-        else:
-            dna = dna_t
-        print('DNA -> mRNA')
-        rna = DNA_RNA(dna)
+        print('mRNA')
         print(rna)
         print()
 
-    # Call reverse transcription function
-    if reverse_transcription:
-        print('RNA -> DNA')
-        rna = sequence
-        dna_t = RNA_DNA(rna)
-        dna_c = DNA_DNA(dna_t)
-        print(dna_c, '(Coding strand)')
-        print(dna_t, '(Template strand)')
-        print()
 
     # Call translation function
     if translation:
