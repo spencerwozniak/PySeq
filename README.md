@@ -1,5 +1,6 @@
-# sequence
-Convert DNA/RNA sequences with polarity
+# PySeq
+Convert DNA/RNA sequences with polarity.
+(Now includes GUI)
 
 Functions:
 - Convert DNA to DNA (replication)
