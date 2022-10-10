@@ -282,25 +282,27 @@ def main():
     print(sequence) # Print input sequence
     print()
     
-    dna_c = None
-    dna_t = None
+    if seq_type(sequence) != 'RNA':
+        # If RNA not given, will get DNA coding/template strand.
+        dna_c = None
+        dna_t = None
 
-    # Handles coding or template strand
-    if strand == 'template':
-        dna_c = DNA_DNA(sequence)
-        dna_t = DNA_DNA(dna_c)
-    else:
-        dna_c = False
-        dna_t = DNA_DNA(sequence)
-   
-    rna = None
+        # Handles coding or template strand
+        if strand == 'template':
+            dna_c = DNA_DNA(sequence)
+            dna_t = DNA_DNA(dna_c)
+        else:
+            dna_c = False
+            dna_t = DNA_DNA(sequence)
+       
+        rna = None
 
-    if dna_c:
-        dna_t = DNA_DNA(dna_c)
-        dna_c = DNA_DNA(dna_t)
-    else:
-        dna_t = DNA_DNA(sequence)
-        dna_c = DNA_DNA(dna_t)
+        if dna_c:
+            dna_t = DNA_DNA(dna_c)
+            dna_c = DNA_DNA(dna_t)
+        else:
+            dna_t = DNA_DNA(sequence)
+            dna_c = DNA_DNA(dna_t)
 
 
     # Call replication function
