@@ -17,7 +17,8 @@ Functions:
   - Can print 1 or 3 letter abbreviations
 
 Using GUI:
-
+`$ sequence.py --gui`  
+`$ gui.py`
 
 Examples from command line:
 
