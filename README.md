@@ -21,7 +21,7 @@ Examples:
 `$ sequence.py --gui`
   
 ```
-Opens GUI.
+Opens GUI
 ```
 
 `$ sequence.py TATACGATGCGCTTATGCTGACCGGTA`
