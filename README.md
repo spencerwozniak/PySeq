@@ -18,8 +18,9 @@ Functions:
 
 Examples from command line:
 
-`$ sequence.py --gui` or `$ gui.py`  
-_Opens GUI_
+`$ sequence.py --gui`
+  
+_Opens GUI_  
 
 `$ sequence.py TATACGATGCGCTTATGCTGACCGGTA`
 
