@@ -14,7 +14,10 @@ Functions:
   - Can detect start & stop codons
   - Can print 1 or 3 letter abbreviations
 
-Examples:
+Using GUI:
+![gui](https://user-images.githubusercontent.com/98838077/194964593-9d9ed783-633d-473a-829e-d6bcb6d531c7.png)
+
+Examples from command line:
 
 `$ sequence.py TATACGATGCGCTTATGCTGACCGGTA`
 
