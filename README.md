@@ -2,7 +2,10 @@
 Convert DNA/RNA sequences with polarity.    
 (Now includes GUI)
 
-<div align="center">![gui](https://user-images.githubusercontent.com/98838077/194964593-9d9ed783-633d-473a-829e-d6bcb6d531c7.png)</div>  
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/98838077/194964593-9d9ed783-633d-473a-829e-d6bcb6d531c7.png" />
+</p>
+
 
 Functions:
 - Convert DNA to DNA (replication)
