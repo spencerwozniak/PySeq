@@ -16,11 +16,10 @@ Functions:
   - Can detect start & stop codons
   - Can print 1 or 3 letter abbreviations
 
-Using GUI:
-`$ sequence.py --gui`  
-`$ gui.py`
-
 Examples from command line:
+
+`$ sequence.py --gui` or `$ gui.py`  
+_Opens GUI_
 
 `$ sequence.py TATACGATGCGCTTATGCTGACCGGTA`
 
